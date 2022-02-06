@@ -1,0 +1,32 @@
+﻿@typeparam TRow
+@inherits DataGridEditCellBase<TRow, string>
+
+@if (IsInEdit)
+{
+    <DxTextBox BindValueMode="BindValueMode.OnInput" @ref="textBox" @bind-Text="Value" @onkeydown="OnKeyDown"></DxTextBox>
+}
+else
+{
+    <div class="grid-cell" @onclick="InvokeStartEdit">@Value</div>
+}
+
+@code {
+    DxTextBox textBox;
+    private bool isFocused;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (textBox != null && !isFocused)
+        {
+            isFocused = true;
+            textBox.FocusAsync();
+        }
+    }
+
+    public override void StartEdit()
+    {
+        base.StartEdit();
+        isFocused = false;
+    }
+}

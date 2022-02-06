@@ -1,0 +1,52 @@
+﻿@page "/TreeViewWithCheckBoxes"
+
+<h3>TreeViewWithCheckBoxes</h3>
+
+<CascadingValue Value="@context" Name="CheckableContext">
+    <DxTreeView Data="@treeData" NodeExpandCollapseAction="TreeViewNodeExpandCollapseAction.ButtonClick">
+        <DataMappings>
+            <DxTreeViewDataMapping Text="Text" Children="Children" Name="Id"></DxTreeViewDataMapping>
+        </DataMappings>
+        <NodeTextTemplate>
+            <TreeNodeView Text="@context.Text" Id="@context.Name"></TreeNodeView>
+        </NodeTextTemplate>
+    </DxTreeView>
+</CascadingValue>
+
+@code {
+
+    private IList<TreeData> treeData = new List<TreeData>();
+    private TreeViewCheckableContext<TreeData> context = new TreeViewCheckableContext<TreeData>();
+    
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        GenerateTreeData();
+        context.FillFromHierarchyData(treeData, t => t.Id.ToString(), t => t.Children);
+    }
+
+    private void GenerateTreeData()
+    {
+        var rootNodesCount = 10;
+        var childNodesCount = 100;
+
+        var id = 1;
+        for (int i = 0; i < rootNodesCount; i++)
+        {
+            var node = new TreeData() { Id = id++, Text = $"RootNode{i}" };
+            for (int j = 0; j < childNodesCount; j++)
+            {
+                var childNode = new TreeData() { Id = id++, Text = $"ChildNode{i}_{j}" };
+                node.Children.Add(childNode);
+            }
+            treeData.Add(node);
+        }
+    }
+    
+    public class TreeData
+    {
+        public int Id { get; set; }
+        public string Text { get; set; }
+        public IList<TreeData> Children { get; } = new List<TreeData>();
+    }
+}

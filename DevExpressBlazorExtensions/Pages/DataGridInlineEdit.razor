@@ -1,0 +1,120 @@
+﻿@page "/DataGridInlineEdit"
+@using System.Collections.ObjectModel
+
+<h3>DataGridInlineEdit</h3>
+
+<CascadingValue Value="@editContext" Name="EditContext">
+    <DxDataGrid @ref="grid" Data="rows" DataNavigationMode="DataGridNavigationMode.ShowAllDataRows">
+        <Columns>
+            <DxDataGridColumn Field="Text" Width="33%">
+                <DisplayTemplate>
+                    <DataGridTextEditCell Row="@((RowData)context)" FieldName="Text"></DataGridTextEditCell>
+                </DisplayTemplate>
+            </DxDataGridColumn>
+            <DxDataGridColumn Field="Number" Width="33%">
+                <DisplayTemplate>
+                    <DataGridNumberEditCell Row="@((RowData)context)" FieldName="Number"></DataGridNumberEditCell>
+                </DisplayTemplate>
+            </DxDataGridColumn>
+            <DxDataGridColumn Field="Date" Width="33%">
+                <DisplayTemplate>
+                    <DataGridDateTimeEditCell Row="@((RowData)context)" FieldName="Date"></DataGridDateTimeEditCell>
+                </DisplayTemplate>
+            </DxDataGridColumn>
+        </Columns>
+    </DxDataGrid>
+</CascadingValue>
+
+<DxButton Text="Add row" @onclick="OnAddRow"></DxButton>
+<DxButton Text="Remove row" @onclick="OnRemoveRow"></DxButton>
+
+@code {
+
+    private EditContext editContext = new EditContext();
+    private ObservableCollection<RowData> rows = new ObservableCollection<RowData>();
+    private DxDataGrid<RowData> grid;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        GenerateData();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+            editContext.Initialize(grid, rows, () => new RowData());
+    }
+
+    private void OnAddRow()
+    {
+        var row = editContext.AddRow();
+        editContext.StartEdit(new FirstCellOfRow<RowData>(row), true);
+    }
+
+    private void OnRemoveRow()
+    {
+        var row = grid.SingleSelectedDataRow;
+        if (row != null)
+            rows.Remove(row);
+    }
+
+    private void GenerateData()
+    {
+        var rowCount = 10;
+        for (int i = 0; i < rowCount; i++)
+        {
+            var row = new RowData()
+            {
+                Number = i,
+                Text = $"Text{i}",
+                Date = DateTime.Now.AddHours(i)
+            };
+            rows.Add(row);
+        }
+    }
+
+    class RowData
+    {
+        public int Number { get; set; }
+        public string Text { get; set; }
+        public DateTime Date { get; set; }
+    }
+
+    class EditContext : DataGridEditContextBase<RowData>
+    {
+        public override object GetFieldValue(RowData row, string fieldName)
+        {
+            switch (fieldName)
+            {
+                case nameof(RowData.Number):
+                    return row.Number;
+                case nameof(RowData.Text):
+                    return row.Text;
+                case nameof(RowData.Date):
+                    return row.Date;
+                default: 
+                    throw new ArgumentException($"Field name '{fieldName}' not exist", nameof(fieldName));
+            }
+        }
+
+        public override void SetFieldValue(RowData row, string fieldName, object value)
+        {
+            switch (fieldName)
+            {
+                case nameof(RowData.Number):
+                    row.Number = (int)value;
+                    break;
+                case nameof(RowData.Text):
+                    row.Text = (string)value;
+                    break;
+                case nameof(RowData.Date):
+                    row.Date = (DateTime)value;
+                    break;
+                default:
+                    throw new ArgumentException($"Field name '{fieldName}' not exist", nameof(fieldName));
+            }
+        }
+    }
+}

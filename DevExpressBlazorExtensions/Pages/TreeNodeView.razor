@@ -1,0 +1,41 @@
+﻿@implements ITreeNodeView
+
+<DxCheckBox @bind-Checked="IsChecked" @onclick="OnClick">
+    @Text
+</DxCheckBox>
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    
+    [Parameter]
+    public string Text { get; set; }
+
+    [CascadingParameter(Name = "CheckableContext")] 
+    public ITreeViewCheckableContext Context { get; set; }
+    
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Context.RegisterNodeView(this);
+    }
+
+    public void Dispose()
+    {
+        Context.UnregisterNodeView(this);
+    }
+
+    private bool? IsChecked { get; set; } = false;
+    
+    private void OnClick()
+    {
+        Context.ToggleNodeState(Id);
+    }
+    
+    public void SetState(bool? state)
+    {
+        IsChecked = state;
+        StateHasChanged();
+    }
+
+}

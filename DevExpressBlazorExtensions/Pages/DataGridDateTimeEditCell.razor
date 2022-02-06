@@ -1,0 +1,32 @@
+﻿@typeparam TRow
+@inherits DataGridEditCellBase<TRow, DateTime>
+
+@if (IsInEdit)
+{
+    <DxDateEdit @ref="dateBox" @bind-Date="Value" @onkeydown="OnKeyDown"></DxDateEdit>
+}
+else
+{
+    <div class="grid-cell" @onclick="InvokeStartEdit">@Value</div>
+}
+
+@code {
+    DxDateEdit<DateTime> dateBox;
+    private bool isFocused;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (dateBox != null && !isFocused)
+        {
+            isFocused = true;
+            dateBox.FocusAsync();
+        }
+    }
+
+    public override void StartEdit()
+    {
+        base.StartEdit();
+        isFocused = false;
+    }
+}
