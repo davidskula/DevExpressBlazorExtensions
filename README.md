@@ -1,4 +1,4 @@
-# DevExpressBlazorExtensions
+# DevExpress Blazor Extensions
 
 An attempt to implement features that are desperately missing in components for Blazor from DevExpress.
 
